@@ -1,4 +1,6 @@
-define(["storymaps/playlist/config/MapConfig","esri/map",
+define(["storymaps/playlist/config/MapConfig",
+  "storymaps/utils/Helper",
+  "esri/map",
 	"esri/arcgis/utils",
 	"esri/dijit/Legend",
 	"esri/dijit/Popup",
@@ -17,8 +19,9 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 	"esri/renderers/UniqueValueRenderer",
 	"esri/tasks/query",
 	"esri/dijit/HistogramTimeSlider",
-	"dojo/_base/sniff"], 
+	"dojo/_base/sniff"],
 	function(MapConfig,
+    Helper,
 		Map,
 		arcgisUtils,
 		Legend,
@@ -41,11 +44,11 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 	/**
 	* Playlist Map
 	* @class Playlist Map
-	* 
+	*
 	* Class to define a new map for the playlist template
 	*/
 
-	return function PlaylistMap(isMobile,geometryServiceURL,bingMapsKey,webmapId,excludedLayers,dataFields,displayLegend,playlistLegendConfig,mapSelector,playlistLegendSelector,legendSelector,sidePaneSelector,onLoad,onHideLegend,onListItemRefresh,onHighlight,onRemoveHighlight,onSelect,onRemoveSelection)
+	return function PlaylistMap(isMobile,showTabs,geometryServiceURL,bingMapsKey,webmapId,excludedLayers,dataFields,displayLegend,playlistLegendConfig,layerProperties,mapSelector,playlistLegendSelector,legendSelector,sidePaneSelector,onLoad,onHideLegend,onListItemRefresh,onHighlight,onRemoveHighlight,onSelect,onRemoveSelection,onSelectTab)
 	{
 		var _mapConfig = new MapConfig(),
 		_map,
@@ -65,10 +68,14 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 			var popup;
 
 			if (has("touch") && domGeom.position(query("body")[0]).w < 768){
-				popup = new PopupMobile(null,domConstruct.create("div"));
+				popup = new PopupMobile({
+          highlight: false
+        },domConstruct.create("div"));
 			}
 			else{
-				popup = new Popup(null,domConstruct.create("div"));
+				popup = new Popup({
+          highlight: false
+        },domConstruct.create("div"));
 			}
 
 			_mapTip = domConstruct.place('<div class="map-tip"></div>',dom.byId(mapSelector),"first");
@@ -89,7 +96,7 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 						onLoad(response.itemInfo.item);
 					}
 				},10000);
-				
+
 				_mapResponse = response;
 				_map = response.map;
 
@@ -134,7 +141,7 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 				on(popup,"selection-change",function(){
 					var graphic = popup.getSelectedFeature();
 
-					if (graphic){						
+					if (graphic){
 						onRemoveSelection();
 						var item = {
 							layerId: (graphic.getLayer() ? graphic.getLayer().id : _tempLayerId),
@@ -190,8 +197,14 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 
 				if (graphic.getNode() && domGeom.position(graphic.getNode()).x > getSidePanelWidth()){
 					var mapPos = domGeom.position(dom.byId(mapSelector));
-					var point = new ScreenPoint(domGeom.position(graphic.getNode()).x - mapPos.x, domGeom.position(graphic.getNode()).y - mapPos.y + _mapConfig.getMarkerPosition().height);
-					openPopup(graphic,_map.toMap(point));
+          if(!layer.playlistProperties.keepWebmapStyle){
+            var point = new ScreenPoint(domGeom.position(graphic.getNode()).x - mapPos.x, domGeom.position(graphic.getNode()).y - mapPos.y + _mapConfig.getMarkerPosition().height);
+            openPopup(graphic,_map.toMap(point));
+          }
+          else{
+            point = new ScreenPoint(domGeom.position(graphic.getNode()).x - mapPos.x, domGeom.position(graphic.getNode()).y - mapPos.y);
+            openPopup(graphic);
+          }
 				}
 				else{
 					on.once(_map,"extent-change",function(){
@@ -201,9 +214,9 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 					panMapToGraphic(graphic.geometry);
 				}
 
-				if (!has("ie")){
+				if (!has("ie") && !layer.playlistProperties.keepWebmapStyle){
 					graphic.getDojoShape().moveToFront();
-				}				
+				}
 			});
 		};
 
@@ -223,17 +236,19 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 					_lastHightlighedGraphic = graphic;
 
 					if (graphic.getNode() && domGeom.position(graphic.getNode()).x > getSidePanelWidth()){
-						
-						var newSym = layer.renderer.getSymbol(graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
-						
-						graphic.setSymbol(newSym);
-						if (!has("ie")){
-							graphic.getDojoShape().moveToFront();
-						}
+
+            if (!layer.playlistProperties.keepWebmapStyle){
+  						var newSym = layer.renderer.getSymbol(graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
+              graphic.setSymbol(newSym);
+
+              if (!has("ie")){
+                graphic.getDojoShape().moveToFront();
+              }
+            }
 
 						showMapTip(graphic,titleAttr);
 					}
-					
+
 				});
 			}
 		};
@@ -243,7 +258,7 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 			var graphic = _lastHightlighedGraphic;
 			if (graphic){
 				var layer = graphic.getLayer();
-				if (layer){
+				if (layer && !layer.playlistProperties.keepWebmapStyle){
 					var newSym = layer.renderer.getSymbol(graphic).setWidth(_mapConfig.getMarkerPosition().width).setHeight(_mapConfig.getMarkerPosition().height).setOffset(_mapConfig.getMarkerPosition().xOffset,_mapConfig.getMarkerPosition().yOffset);
 					graphic.setSymbol(newSym);
 				}
@@ -333,6 +348,7 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 					array.forEach(layer.featureCollection.layers,function(l){
 						if (l.layerDefinition.geometryType === "esriGeometryPoint" && l.visibility && checkExcluded(l.layerObject.name)){
 							var playlistLyr = l.layerObject;
+              playlistLyr.playlistProperties = getPropertiesForLayer(playlistLyr.name);
 							playlistLayers.push(playlistLyr);
 							var lyrProp = {
 								layerId: playlistLyr.id,
@@ -343,12 +359,15 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 							_playlistLayers.push(lyrProp);
 							setRenderer(playlistLyr);
 							addLayerEvents(playlistLyr);
-							layerIds.push(playlistLyr.id);
+              if (!playlistLyr.playlistProperties.keepWebmapStyle){
+							 layerIds.push(playlistLyr.id);
+              }
 						}
 					});
 				}
 				else if(layer.url && layer.resourceInfo.type === "Feature Layer" && (layer.resourceInfo.geometryType === "esriGeometryPoint" || layer.resourceInfo.geometryType === "esriGeometryMultipoint") && layer.visibility && checkExcluded(layer.layerObject.name)){
 					var playlistLyr = layer.layerObject;
+          playlistLyr.playlistProperties = getPropertiesForLayer(playlistLyr.name);
 					playlistLayers.push(playlistLyr);
 					playlistLyr.mode = 0;
 					addLayerEvents(playlistLyr);
@@ -378,10 +397,15 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 						});
 
 					});
-					layerIds.push(playlistLyr.id);
+          if (!playlistLyr.playlistProperties.keepWebmapStyle){
+					 layerIds.push(playlistLyr.id);
+          }
 				}
 			});
-			buildLegend(layerIds);			
+			buildLegend(layerIds);
+      if (showTabs && playlistLayers.length > 1){
+        createTabs(playlistLayers);
+      }
 			initTime(playlistLayers);
 		}
 
@@ -402,6 +426,65 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 				return true;
 			}
 		}
+
+    function getPropertiesForLayer(name){
+      var properties = false;
+      array.forEach(layerProperties.layers,function(lyr){
+        if (name.toLowerCase().search(lyr.name.toLowerCase()) >= 0){
+          properties = lyr.properties;
+        }
+      });
+      return properties;
+    }
+
+    function createTabs(layers){
+      var selector = $('<select id="mobile-tabs"></select>');
+
+      $.each(layers,function(i){
+        var layer = this;
+        var text = layer.playlistProperties.tabTitle ? layer.playlistProperties.tabTitle : layer.name;
+        var tab = $('<div class="tab" data-tab-order="' + (layer.playlistProperties.tabOrder ? layer.playlistProperties.tabOrder : 100) + '">' + text + '</div>');
+        var option = $('<option value="'+text+' "data-tab-order="' + (layer.playlistProperties.tabOrder ? layer.playlistProperties.tabOrder : 100) + '">'+text+'</option>');
+        option.data('tab',tab);
+        selector.append(option);
+        $('#tab-area').append(tab);
+
+        tab.click(function(){
+          selectLayer($(this),layer);
+        });
+      });
+
+      $('#tab-area').find('.tab').sort(function (a, b) {
+         return $(a).attr('data-tab-order') - $(b).attr('data-tab-order');
+      }).appendTo('#tab-area');
+
+      selector.find('option').sort(function (a, b) {
+         return $(a).attr('data-tab-order') - $(b).attr('data-tab-order');
+      }).appendTo('#tab-area select');
+
+      $('#tab-area').append(selector);
+
+      selector.change(function(){
+        console.log($(this).find('option:selected').data('tab'));
+        $(this).find('option:selected').data('tab').trigger('click');
+      });
+
+      function selectLayer(tab,layer){
+        $('#tab-area .tab').removeClass('active');
+        tab.addClass('active');
+
+        $.each(layers,function(){
+          this.hide();
+          layer.show();
+        });
+
+        onSelectTab(layer.id);
+      }
+
+      $('#banner').height($('#header-main').height()+40);
+      Helper.resetRegionLayout();
+
+    }
 
 		function setRenderer(lyr)
 		{
@@ -456,14 +539,20 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 			var maxPoints = _mapConfig.getMaxAllowablePoints();
 			array.forEach(lyr.graphics,function(grp,i){
 				if (i < maxPoints){
-					
+
 					var symbol = renderer.getSymbol(grp);
-					
+          var order = i;
+
+          if (!isNaN(grp.attributes[orderAttr]) && isFinite(grp.attributes[orderAttr]) && grp.attributes[orderAttr] % 1 === 0){
+            order = grp.attributes[orderAttr] - 1;
+          }
+
 					var item = {
 						layerId: layerObj.id,
 						objectIdField: layerObj.objectIdField,
 						graphic: grp,
-						iconURL: symbol.url,
+            order: ++order,
+						iconURL: layerObj.playlistProperties.keepWebmapStyle ? false : symbol.url,
 						filter: grp.attributes[dataFields.filterField]
 					};
 					lyrItems.push(item);
@@ -473,7 +562,9 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 				}
 			});
 
-			layerObj.setRenderer(renderer);
+      if (!layerObj.playlistProperties.keepWebmapStyle){
+  			layerObj.setRenderer(renderer);
+      }
 			layerObj.redraw();
 			_playlistItems[layerObj.id] = lyrItems;
 			listItemsRefresh();
@@ -524,19 +615,23 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 		function addLayerEvents(layer)
 		{
 			if(!has("touch")){
-				
+
 				on(layer,"mouse-over",function(event){
-					var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
+          if (!layer.playlistProperties.keepWebmapStyle){
+					 var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
+           event.graphic.setSymbol(newSym);
+
+            if (!has("ie")){
+              event.graphic.getDojoShape().moveToFront();
+            }
+          }
 					var item = {
 						layerId: event.graphic.getLayer().id,
 						objectId: event.graphic.attributes[event.graphic.getLayer().objectIdField]
 					};
 					var titleAttr = _titleFields[event.graphic.getLayer().id];
 					_lastHightlighedGraphic = event.graphic;
-					event.graphic.setSymbol(newSym);
-					if (!has("ie")){
-						event.graphic.getDojoShape().moveToFront();
-					}
+
 					_map.setCursor("pointer");
 
 					showMapTip(event.graphic,titleAttr);
@@ -545,12 +640,14 @@ define(["storymaps/playlist/config/MapConfig","esri/map",
 				});
 
 				on(layer,"mouse-out",function(event){
-					var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPosition().width).setHeight(_mapConfig.getMarkerPosition().height).setOffset(_mapConfig.getMarkerPosition().xOffset,_mapConfig.getMarkerPosition().yOffset);
+          if (!layer.playlistProperties.keepWebmapStyle){
+  					var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPosition().width).setHeight(_mapConfig.getMarkerPosition().height).setOffset(_mapConfig.getMarkerPosition().xOffset,_mapConfig.getMarkerPosition().yOffset);
+            event.graphic.setSymbol(newSym);
+          }
 					var item = {
 						layerId: event.graphic.getLayer().id,
 						objectId: event.graphic.attributes[event.graphic.getLayer().objectIdField]
 					};
-					event.graphic.setSymbol(newSym);
 					_map.setCursor("default");
 
 					hideMapTip();
