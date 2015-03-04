@@ -236,5 +236,5 @@ limitations under the License.
 A copy of the license is available in the repository's [license.txt](license.txt) file.
 
 
-[](Esri Tags: Storytelling Playlist ArcGIS-Online Template)
+[](Esri Tags: Storytelling Playlist Template)
 [](Esri Language: JavaScript)
