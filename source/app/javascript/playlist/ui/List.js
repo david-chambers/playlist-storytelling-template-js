@@ -18,7 +18,7 @@ define(["dojo/_base/array",
 	{
 		var _listEl = $(selector),
 		_filterSet = [],
-		_searchResults
+		_searchResults,
     _maxOrder = 0;
 
 		addSearchEvents();
@@ -154,7 +154,7 @@ define(["dojo/_base/array",
           }
           itemStr+=' layer-id="' + layerId + '" object-id="' + objId + '" data-filter="' + item.filter + '"><table><tbody><tr><td class="marker-cell';
           if (item.iconURL){
-            itemStr+='"><img src=' + item.iconURL + ' alt="" class="marker" />'
+            itemStr+='"><img src=' + item.iconURL + ' alt="" class="marker" />';
           }
           else{
             itemStr+=' no-marker"><span>' + item.order + '</span>';

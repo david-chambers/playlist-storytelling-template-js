@@ -197,8 +197,9 @@ define(["storymaps/playlist/config/MapConfig",
 
 				if (graphic.getNode() && domGeom.position(graphic.getNode()).x > getSidePanelWidth()){
 					var mapPos = domGeom.position(dom.byId(mapSelector));
+          var point;
           if(!layer.playlistProperties.keepWebmapStyle){
-            var point = new ScreenPoint(domGeom.position(graphic.getNode()).x - mapPos.x, domGeom.position(graphic.getNode()).y - mapPos.y + _mapConfig.getMarkerPosition().height);
+            point = new ScreenPoint(domGeom.position(graphic.getNode()).x - mapPos.x, domGeom.position(graphic.getNode()).y - mapPos.y + _mapConfig.getMarkerPosition().height);
             openPopup(graphic,_map.toMap(point));
           }
           else{
@@ -238,7 +239,7 @@ define(["storymaps/playlist/config/MapConfig",
 					if (graphic.getNode() && domGeom.position(graphic.getNode()).x > getSidePanelWidth()){
 
             if (!layer.playlistProperties.keepWebmapStyle){
-  						var newSym = layer.renderer.getSymbol(graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
+              var newSym = layer.renderer.getSymbol(graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
               graphic.setSymbol(newSym);
 
               if (!has("ie")){
@@ -360,7 +361,7 @@ define(["storymaps/playlist/config/MapConfig",
 							setRenderer(playlistLyr);
 							addLayerEvents(playlistLyr);
               if (!playlistLyr.playlistProperties.keepWebmapStyle){
-							 layerIds.push(playlistLyr.id);
+                layerIds.push(playlistLyr.id);
               }
 						}
 					});
@@ -398,7 +399,7 @@ define(["storymaps/playlist/config/MapConfig",
 
 					});
           if (!playlistLyr.playlistProperties.keepWebmapStyle){
-					 layerIds.push(playlistLyr.id);
+            layerIds.push(playlistLyr.id);
           }
 				}
 			});
@@ -440,7 +441,7 @@ define(["storymaps/playlist/config/MapConfig",
     function createTabs(layers){
       var selector = $('<select id="mobile-tabs"></select>');
 
-      $.each(layers,function(i){
+      $.each(layers,function(){
         var layer = this;
         var text = layer.playlistProperties.tabTitle ? layer.playlistProperties.tabTitle : layer.name;
         var tab = $('<div class="tab" data-tab-order="' + (layer.playlistProperties.tabOrder ? layer.playlistProperties.tabOrder : 100) + '">' + text + '</div>');
@@ -563,7 +564,7 @@ define(["storymaps/playlist/config/MapConfig",
 			});
 
       if (!layerObj.playlistProperties.keepWebmapStyle){
-  			layerObj.setRenderer(renderer);
+        layerObj.setRenderer(renderer);
       }
 			layerObj.redraw();
 			_playlistItems[layerObj.id] = lyrItems;
@@ -618,7 +619,7 @@ define(["storymaps/playlist/config/MapConfig",
 
 				on(layer,"mouse-over",function(event){
           if (!layer.playlistProperties.keepWebmapStyle){
-					 var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
+            var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPositionHighlight().width).setHeight(_mapConfig.getMarkerPositionHighlight().height).setOffset(_mapConfig.getMarkerPositionHighlight().xOffset,_mapConfig.getMarkerPositionHighlight().yOffset);
            event.graphic.setSymbol(newSym);
 
             if (!has("ie")){
@@ -641,7 +642,7 @@ define(["storymaps/playlist/config/MapConfig",
 
 				on(layer,"mouse-out",function(event){
           if (!layer.playlistProperties.keepWebmapStyle){
-  					var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPosition().width).setHeight(_mapConfig.getMarkerPosition().height).setOffset(_mapConfig.getMarkerPosition().xOffset,_mapConfig.getMarkerPosition().yOffset);
+            var newSym = layer.renderer.getSymbol(event.graphic).setWidth(_mapConfig.getMarkerPosition().width).setHeight(_mapConfig.getMarkerPosition().height).setOffset(_mapConfig.getMarkerPosition().xOffset,_mapConfig.getMarkerPosition().yOffset);
             event.graphic.setSymbol(newSym);
           }
 					var item = {

@@ -39,9 +39,9 @@
 	<!-- load Avenir from fonts.com  this is will only work on localhost, arcgis.com or esri.com domains -->
 	<link href="//fast.fonts.com/cssapi/4a60d16b-c9e4-404d-89d3-809adb97d65c.css" media="screen" rel="stylesheet" type="text/css" />
 	
-	<link href="//js.arcgis.com/3.10/js/dojo/dijit/themes/tundra/tundra.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="//js.arcgis.com/3.12/dijit/themes/tundra/tundra.css" media="screen" rel="stylesheet" type="text/css" />
 	
-	<link href="//js.arcgis.com/3.10/js/esri/css/esri.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="//js.arcgis.com/3.12/esri/css/esri.css" media="screen" rel="stylesheet" type="text/css" />
 	<link href="app/stylesheets/arcgis.min.css" media="screen" rel="stylesheet" type="text/css" />
 	<link href="app/stylesheets/app.css" media="screen" rel="stylesheet" type="text/css" />
 
@@ -56,14 +56,14 @@
 
 </head>
 <body class="tundra">
-	
+
 	<div id="app-load-screen">
 		<div id="loader"></div>
 		<h4 id="loading-message">Loading Playlist</h4>
 	</div>
 
 	<div id="bitly-overlay" class="modal bitly-modal">
-		<a class="icon-close right" onclick="$('.bitly-modal').removeClass('visible');"></a>		
+		<a class="icon-close right" onclick="$('.bitly-modal').removeClass('visible');"></a>
 		<h4>Bitly link to share</h4>
 		<br>
 		<a id="bitly-link" target="_blank"></a>
@@ -72,7 +72,7 @@
 		<div id="bitly-close" class="btn primary" onclick="$('.bitly-modal').removeClass('visible');">Close</div>
 	</div>
 
-		
+	
 
 	<div id="app-content" class="region-center">
 		<div id="side-pane">
@@ -80,7 +80,7 @@
 	<div id="side-pane-buffer" class="region-top"></div>
 
 	<div id="side-pane-content-wrapper" class="region-center">
-			
+
 		<div id="side-pane-controls" class="region-top">
 			<span class="icon-open-book playlist-control toggle-description" title="Toggle Description"></span>
 			<span class="icon-list-2 playlist-control toggle-legend" title="Toggle Legend"></span>
@@ -117,7 +117,7 @@
 							</label>
 							<hr>
 						</div>
-					</div>					
+					</div>
 				</div>
 				<div id="playlist" class="region-center">
 					<div class="playlist-no-layer-message">
@@ -143,31 +143,37 @@
 
 	<div id="banner" class="region-top">
 
-		<div id="header-text" class="region-center">
-			<h1 class="back-button icon-left-arrow"><span>Explore Map</span></h1>
-			<h1 id="title" class="title-text"></h1>
-			<h2 id="subtitle" class="subtitle-text"></h2>
-		</div><!--/header-text-->
+    <div id="header-main" class="region-top">
 
-		<div id="branding-wrapper" class="region-right">
-			<div id="social">
-				<a id="smLink" href="http://storymaps.esri.com" target="_blank">A story map</a>&nbsp;
-				<span class="icon-facebook social-share"></span>
-				<span class="icon-twitter social-share"></span>
-				<span class="icon-link social-share"></span>
-			</div><!--/social-->
-			<div id="logo">
-				<a id="logoLink" href="http://www.esri.com" target="_blank">
-					<img id="logoImg" src="resources/images/esriGlobeLogow.png" alt="Esri - Home">
-				</a><!--/logoLink-->
-			</div><!--/logo-->
-		</div><!--/branding-wrapper-->
+  		<div id="header-text" class="region-center">
+  			<h1 class="back-button icon-left-arrow"><span>Explore Map</span></h1>
+  			<h1 id="title" class="title-text"></h1>
+  			<h2 id="subtitle" class="subtitle-text"></h2>
+  		</div><!--/header-text-->
 
-		<div id="mobile-controls" class="region-right">
-			<span class="icon-open-book playlist-control toggle-description"></span>
-			<span class="icon-list-2 playlist-control toggle-legend"></span>
-			<span class="icon-share"></span>
-		</div>
+  		<div id="branding-wrapper" class="region-right">
+  			<div id="social">
+  				<a id="smLink" href="http://storymaps.esri.com" target="_blank">A story map</a>&nbsp;
+  				<span class="icon-facebook social-share"></span>
+  				<span class="icon-twitter social-share"></span>
+  				<span class="icon-link social-share"></span>
+  			</div><!--/social-->
+  			<div id="logo">
+  				<a id="logoLink" href="http://www.esri.com" target="_blank">
+  					<img id="logoImg" src="resources/images/esriGlobeLogow.png" alt="Esri - Home">
+  				</a><!--/logoLink-->
+  			</div><!--/logo-->
+  		</div><!--/branding-wrapper-->
+
+  		<div id="mobile-controls" class="region-right">
+  			<span class="icon-open-book playlist-control toggle-description"></span>
+  			<span class="icon-list-2 playlist-control toggle-legend"></span>
+  			<span class="icon-share"></span>
+  		</div>
+
+    </div><!--/header-main-->
+
+    <div id="tab-area" class="region-center"></div>
 
 	</div><!--/banner-->
 
@@ -186,7 +192,7 @@
 
 </div><!--/content-->
 	</div>
-	
+
 	
 	<script type="text/javascript">
 		var dojoConfig = {
@@ -209,12 +215,14 @@
 			]
 		};
 	</script>
-	<script src="//js.arcgis.com/3.10/" type="text/javascript"></script>
+	<script src="//js.arcgis.com/3.12/" type="text/javascript"></script>
 	<script type="text/javascript">
 
 		var configOptions = {
 			// The web map id
 			webmap: "225d8fdebb1440db80165645dcd16b91",
+      // If multiple playlist layers are found they will be shown as tabs. Setting this to false will cause all layers to remain in the same list but reset ordering to 1.
+      showMultipleLayersAsTabs: true,
 			// Enter a title, if no title is specified, the webmap's title is used.
 			title: "",
 			// Enter a subtitle, if not specified the ArcGIS.com web map's summary is used
@@ -273,6 +281,8 @@
 			},
 			// Add the layer names of valid point layers that should be excluded from the playlist and used as reference layers
 			excludedLayers: [],
+      // Add optional layer specific properties
+      layerProperties: '',
 			// If the webmap uses Bing Maps data, you will need to provided your Bing Maps Key
 			bingMapsKey: "",
 			// Specify a proxy for custom deployment
