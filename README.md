@@ -1,3 +1,6 @@
+[View it live - David's Update](http://david-chambers.github.io/playlist-storytelling-template-js/deploy/)
+
+
 Playlist
 ========
 
