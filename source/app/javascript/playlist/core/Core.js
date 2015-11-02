@@ -1,10 +1,12 @@
 define(["dojo/has",
+	"esri/tasks/GeometryService",
 	"storymaps/utils/Helper",
 	"storymaps/playlist/core/mobile/Layout",
 	"storymaps/playlist/ui/Map",
 	"storymaps/playlist/ui/List",
 	"lib/jquery/jquery-1.10.2.min"],
 	function(has,
+		GeometryService,
 		Helper,
 		MobileLayout,
 		Map,
@@ -50,6 +52,10 @@ define(["dojo/has",
 				configOptions.geometryServiceUrl = configOptions.geometryServiceUrl.replace('http:', 'https:');
 			}
 
+			esri.arcgis.utils.arcgisUrl = configOptions.sharingUrl;
+			esri.config.defaults.io.proxyUrl = configOptions.proxyUrl;
+			esri.config.defaults.geometryServiceUrl = new GeometryService(configOptions.geometryServiceUrl);
+
 			var urlObject = esri.urlToObject(document.location.href);
 			urlObject.query = urlObject.query || {};
 
@@ -57,7 +63,7 @@ define(["dojo/has",
 				configOptions.webmap = urlObject.query.webmap;
 			}
 
-			_map = new Map(_mobile,configOptions.geometryServiceUrl,configOptions.bingMapsKey,configOptions.webmap,configOptions.excludedLayers,configOptions.dataFields,configOptions.playlistLegend.visible,configOptions.playlistLegend,"map","playlist-legend","legend","#side-pane",onMapLoad,onMapLegendHide,onLayersUpdate,onMarkerOver,onMarkerOut,onMarkerSelect,onMarkerRemoveSelection),
+			_map = new Map(_mobile,configOptions.showMultipleLayersAsTabs,configOptions.geometryServiceUrl,configOptions.bingMapsKey,configOptions.webmap,configOptions.excludedLayers,configOptions.dataFields,configOptions.playlistLegend.visible,configOptions.playlistLegend,configOptions.layerProperties,"map","playlist-legend","legend","#side-pane",onMapLoad,onMapLegendHide,onLayersUpdate,onMarkerOver,onMarkerOut,onMarkerSelect,onMarkerRemoveSelection,onSelectTab),
 			_list = new List("#playlist","#search","#filter-content",configOptions.dataFields,onListLoad,onListGetTitleAttr,onListSelect,onListHighlight,onListRemoveHighlight,onListSearch);
 
 			loadMap();
@@ -65,7 +71,7 @@ define(["dojo/has",
 
 
 		// MAP FUNCTIONS
-		
+
 		function loadMap()
 		{
 			Helper.updateLoadingMessage("Loading map");
@@ -124,6 +130,12 @@ define(["dojo/has",
 				_list.removeSelection();
 			}
 		}
+
+    function onSelectTab(layerId){
+      if(_list){
+        _list.displaySingleLayerItems(layerId);
+      }
+    }
 
 
 		// LIST FUNCTIONS
@@ -222,6 +234,10 @@ define(["dojo/has",
 		function appReady(ready)
 		{
 			if (ready){
+
+        // Select first tab if available
+        $('#tab-area .tab').first().trigger('click');
+
 				Helper.resetRegionLayout();
 				Helper.removeLoadScreen();
 

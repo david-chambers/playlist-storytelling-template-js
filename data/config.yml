@@ -22,6 +22,8 @@ metaSocialURL: http://storymaps.esri.com
 metaThumbnailURL: http://sample.com/thumbnail.png
 # Website/Organization's name to be used in sharing to Facebook and Twitter
 metaSiteName: Esri
+# Default text to be used while sharing app on Twitter
+metaTwitterText: Playlist
 # Twitter Handle to be used while sharing app on Twitter
 metaTwitterHandle: EsriStoryMaps
 # Favicon URL
@@ -42,7 +44,7 @@ description: ""
 
 # LEGEND AND DESCRIPTION
 
-playlistLegendVisible: false
+playlistLegendVisible: true
 
 # Playlist layer title
 playlistTitle: Playlist Layer
@@ -69,6 +71,8 @@ playlistPurpleIconURL: resources/images/markers/indexed/purple/IconPurple1.png
 
 # The web map id
 webmap: 225d8fdebb1440db80165645dcd16b91
+# If multiple playlist layers are found they will be shown as tabs. Setting this to false will cause all layers to remain in the same list but reset ordering to 1.
+showMultipleLayersAsTabs: true
 # Choose name field
 nameField: ""
 # Choose image field
@@ -86,4 +90,4 @@ proxyUrl: ""
 # Specify the url to a geometry service
 geometryServiceUrl: "http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer"
 # Modify this to point to your sharing service URL if you are using the portal
-sharingUrl: http://www.arcgis.com/sharing/rest/content/items
+sharingUrl: "http://www.arcgis.com/sharing/rest/content/items"
